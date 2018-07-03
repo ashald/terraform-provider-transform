@@ -8,7 +8,8 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		DataSourcesMap: map[string]*schema.Resource{
-			"transform_group_by_value": resourceGroupByValue(),
+			"transform_group_by_value": dataSourceGroupByValue(),
+			"transform_glob_map":       dataSourceGlobMap(),
 		},
 	}
 }

@@ -5,15 +5,9 @@ import (
 	"sort"
 )
 
-const FieldInput   = "input"
-const FieldExtract = "extract"
-
-const FieldItems   = "items"
-
-
-func resourceGroupByValue() *schema.Resource {
+func dataSourceGroupByValue() *schema.Resource {
 	return &schema.Resource{
-		Read:   groupByValue,
+		Read: groupByValue,
 
 		Schema: map[string]*schema.Schema{
 			// "Inputs"
@@ -39,7 +33,6 @@ func resourceGroupByValue() *schema.Resource {
 		},
 	}
 }
-
 
 func groupByValue(d *schema.ResourceData, m interface{}) error {
 	input := d.Get(FieldInput).(map[string]interface{})

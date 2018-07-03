@@ -3,9 +3,9 @@ package transform
 import (
 	"testing"
 
+	"fmt"
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/terraform"
-	"fmt"
 	"reflect"
 )
 
@@ -21,7 +21,6 @@ data "transform_group_by_value" "data" {
   extract = "val1"
 }
 `
-
 
 func TestGroupByValueDataSource(t *testing.T) {
 	expected := []string{"key1", "key2"}

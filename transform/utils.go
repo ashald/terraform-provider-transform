@@ -1,8 +1,8 @@
 package transform
 
 import (
-	"encoding/json"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 )
 

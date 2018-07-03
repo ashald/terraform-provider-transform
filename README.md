@@ -48,23 +48,37 @@ or it can be [installed system-wide](https://www.terraform.io/docs/configuration
 
 ### main.tf
 ```hcl
-data "transform_group_by_value" "data" {
+locals {
   input = {
-    key1 = "val1"
-    key2 = "val1"
-    key3 = "val2"
+    "aaa/bbb/111" = "val1"
+    "aaa/ccc/111" = "val1"
+    "aaa/ddd/222" = "val2"
   }
-  extract = "val1"
 }
 
+data "transform_group_by_value" "data" { input="${local.input}" extract = "val1" }
+
+data "transform_glob_map" "include"         { input="${local.input}" pattern="aaa/*/111"                }
+data "transform_glob_map" "exclude"         { input="${local.input}" pattern="aaa/*/111" exclude = true }
+data "transform_glob_map" "include_w_sep"   { input="${local.input}" pattern="aaa/*"     separator="/"  }
+data "transform_glob_map" "include_wo_sep"  { input="${local.input}" pattern="aaa/*"                    }
+
 output "result" {
-  value="${data.transform_group_by_value.data.items}"
+  value = {
+    grouped = "${data.transform_group_by_value.data.items}"
+
+    glob_include        = "${data.transform_glob_map.include.output}"
+    glob_exclude        = "${data.transform_glob_map.exclude.output}"
+
+    glob_include_w_sep  = "${data.transform_glob_map.include_w_sep.output}"
+    glob_include_wo_sep = "${data.transform_glob_map.include_wo_sep.output}"
+  }
 }
 ```
 
 ### Download
 ```bash
-$ wget "https://github.com/ashald/terraform-provider-transform/releases/download/v1.0.0/terraform-provider-transform_v1.0.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+$ wget "https://github.com/ashald/terraform-provider-transform/releases/download/v1.1.0/terraform-provider-transform_v1.1.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
 $ chmod +x ./terraform-provider-transform*
 ```
 
@@ -72,7 +86,7 @@ $ chmod +x ./terraform-provider-transform*
 ```bash
 $ ls -1
   main.tf
-  terraform-provider-transform_v1.0.0-linux-amd64
+  terraform-provider-transform_v1.1.0-linux-amd64
 
 $ terraform init
   
@@ -86,7 +100,7 @@ $ terraform init
   corresponding provider blocks in configuration, with the constraint strings
   suggested below.
   
-  * provider.transform: version = "~> 1.0"
+  * provider.transform: version = "~> 1.1"
   
   Terraform has been successfully initialized!
   
@@ -103,16 +117,23 @@ $ terraform init
 
 ```bash
 $ terraform apply
+  data.transform_glob_map.include: Refreshing state...
+  data.transform_glob_map.include_wo_sep: Refreshing state...
+  data.transform_glob_map.include_w_sep: Refreshing state...
+  data.transform_glob_map.exclude: Refreshing state...
   data.transform_group_by_value.data: Refreshing state...
   
   Apply complete! Resources: 0 added, 0 changed, 0 destroyed.
   
   Outputs:
   
-  result = [
-      key1,
-      key2
-  ]
+  result = {
+    glob_exclude = map[aaa/ddd/222:val2]
+    glob_include = map[aaa/ccc/111:val1 aaa/bbb/111:val1]
+    glob_include_w_sep = map[]
+    glob_include_wo_sep = map[aaa/bbb/111:val1 aaa/ddd/222:val2 aaa/ccc/111:val1]
+    grouped = [aaa/ccc/111 aaa/bbb/111]
+  }
 
 ```
 
@@ -148,8 +169,10 @@ $ git clone git@github.com:ashald/terraform-provider-transform.git .
 $ make test
   go test -v ./...
   ?   	github.com/ashald/terraform-provider-transform	[no test files]
+  === RUN   TestGlobMapDataSource
+  --- PASS: TestGlobMapDataSource (0.09s)
   === RUN   TestGroupByValueDataSource
-  --- PASS: TestGroupByValueDataSource (0.05s)
+  --- PASS: TestGroupByValueDataSource (0.09s)
   === RUN   TestProvider
   --- PASS: TestProvider (0.00s)
   PASS
@@ -161,7 +184,7 @@ $ make test
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  go build -o terraform-provider-transform_v1.0.0
+  go build -o terraform-provider-transform_v1.1.0
 
 ```
 
@@ -175,8 +198,8 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.0.0-darwin-amd64'
-  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.0.0-linux-amd64'
+  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-darwin-amd64'
+  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-linux-amd64'
 ```
 
 ### Versioning
