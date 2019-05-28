@@ -99,15 +99,15 @@ output "result" {
 
 ### Download
 ```bash
-$ wget "https://github.com/ashald/terraform-provider-transform/releases/download/v1.1.0/terraform-provider-transform_v1.1.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
-$ chmod +x ./terraform-provider-transform*
+wget "https://github.com/ashald/terraform-provider-transform/releases/download/v1.2.0/terraform-provider-transform_v1.2.0-$(uname -s | tr '[:upper:]' '[:lower:]')-amd64"
+chmod +x ./terraform-provider-transform*
 ```
 
 ### Init
 ```bash
 $ ls -1
   main.tf
-  terraform-provider-transform_v1.1.0-linux-amd64
+  terraform-provider-transform_v1.2.0-linux-amd64
 
 $ terraform init
   
@@ -208,7 +208,7 @@ $ make test
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  GOPROXY="off" GOFLAGS="-mod=vendor" go build -o terraform-provider-transform_v1.1.0
+  GOPROXY="off" GOFLAGS="-mod=vendor" go build -o terraform-provider-transform_v1.2.0
 
 ```
 
@@ -222,8 +222,8 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-darwin-amd64'
-  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-linux-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.2.0-darwin-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.2.0-linux-amd64'
 ```
 
 ### Versioning
