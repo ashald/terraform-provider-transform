@@ -10,7 +10,7 @@ import (
 )
 
 const input = `
-output "result" { value="${data.transform_group_by_value.data.items}" }
+output "result" { value=data.transform_group_by_value.data.items }
 
 data "transform_group_by_value" "data" {
   input = {

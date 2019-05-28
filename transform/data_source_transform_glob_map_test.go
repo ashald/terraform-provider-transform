@@ -18,27 +18,44 @@ locals {
   }
 }
 
-data "transform_glob_map" "include"         { input="${local.input}" pattern="aaa/*/111"                }
-data "transform_glob_map" "exclude"         { input="${local.input}" pattern="aaa/*/111" exclude = true }
-data "transform_glob_map" "include_w_sep"   { input="${local.input}" pattern="aaa/*"     separator="/"  }
-data "transform_glob_map" "include_wo_sep"  { input="${local.input}" pattern="aaa/*"                    }
+data "transform_glob_map" "include" {
+  input = local.input
+  pattern = "aaa/*/111"
+}
 
-output "glob_include"			{ value="${data.transform_glob_map.include.output}"			}
-output "glob_exclude" 			{ value="${data.transform_glob_map.exclude.output}" 		}
-output "glob_include_w_sep"		{ value="${data.transform_glob_map.include_w_sep.output}"	}
-output "glob_include_wo_sep"	{ value="${data.transform_glob_map.include_wo_sep.output}"	}
+data "transform_glob_map" "exclude" {
+  input = local.input
+  pattern = "aaa/*/111"
+  exclude = true
+}
+
+data "transform_glob_map" "include_w_sep" {
+  input = local.input
+  pattern = "aaa/*"
+  separator = "/"
+}
+
+data "transform_glob_map" "include_wo_sep" {
+  input = local.input
+  pattern = "aaa/*"
+}
+
+output "glob_include"		 { value=data.transform_glob_map.include.output			}
+output "glob_exclude" 		 { value=data.transform_glob_map.exclude.output 		}
+output "glob_include_w_sep"	 { value=data.transform_glob_map.include_w_sep.output	}
+output "glob_include_wo_sep" { value=data.transform_glob_map.include_wo_sep.output	}
 `
 
 func TestGlobMapDataSource(t *testing.T) {
-	glob_include := map[string]string{
+	globInclude := map[string]string{
 		"aaa/ccc/111": "val1",
 		"aaa/bbb/111": "val1",
 	}
-	glob_exclude := map[string]string{
+	globExclude := map[string]string{
 		"aaa/ddd/222": "val2",
 	}
-	glob_include_w_sep := map[string]string{}
-	glob_include_wo_sep := map[string]string{
+	globIncludeWSep := map[string]string{}
+	globIncludeWoSep := map[string]string{
 		"aaa/bbb/111": "val1",
 		"aaa/ccc/111": "val1",
 		"aaa/ddd/222": "val2",
@@ -51,10 +68,10 @@ func TestGlobMapDataSource(t *testing.T) {
 			{
 				Config: inputGlobMap,
 				Check: resource.ComposeTestCheckFunc(
-					testMapOutputEquals("glob_include", glob_include),
-					testMapOutputEquals("glob_exclude", glob_exclude),
-					testMapOutputEquals("glob_include_w_sep", glob_include_w_sep),
-					testMapOutputEquals("glob_include_wo_sep", glob_include_wo_sep),
+					testMapOutputEquals("glob_include", globInclude),
+					testMapOutputEquals("glob_exclude", globExclude),
+					testMapOutputEquals("glob_include_w_sep", globIncludeWSep),
+					testMapOutputEquals("glob_include_wo_sep", globIncludeWoSep),
 				),
 			},
 		},

@@ -56,24 +56,45 @@ locals {
   }
 }
 
-data "transform_group_by_value" "data" { input="${local.input}" extract = "val1" }
+data "transform_group_by_value" "data" {
+  input = local.input
+  extract = "val1"
+}
 
-data "transform_glob_map" "include"         { input="${local.input}" pattern="aaa/*/111"                }
-data "transform_glob_map" "exclude"         { input="${local.input}" pattern="aaa/*/111" exclude = true }
-data "transform_glob_map" "include_w_sep"   { input="${local.input}" pattern="aaa/*"     separator="/"  }
-data "transform_glob_map" "include_wo_sep"  { input="${local.input}" pattern="aaa/*"                    }
+data "transform_glob_map" "include" {
+  input = local.input
+  pattern = "aaa/*/111"
+}
+
+data "transform_glob_map" "exclude" {
+  input = local.input
+  pattern = "aaa/*/111"
+  exclude = true
+}
+
+data "transform_glob_map" "include_w_sep" {
+  input = local.input
+  pattern = "aaa/*"
+  separator = "/"
+}
+
+data "transform_glob_map" "include_wo_sep" {
+  input = local.input
+  pattern = "aaa/*"
+}
 
 output "result" {
   value = {
-    grouped = "${data.transform_group_by_value.data.items}"
+    grouped = data.transform_group_by_value.data.items
 
-    glob_include        = "${data.transform_glob_map.include.output}"
-    glob_exclude        = "${data.transform_glob_map.exclude.output}"
+    glob_include        = data.transform_glob_map.include.output
+    glob_exclude        = data.transform_glob_map.exclude.output
 
-    glob_include_w_sep  = "${data.transform_glob_map.include_w_sep.output}"
-    glob_include_wo_sep = "${data.transform_glob_map.include_wo_sep.output}"
+    glob_include_w_sep  = data.transform_glob_map.include_w_sep.output
+    glob_include_wo_sep = data.transform_glob_map.include_wo_sep.output
   }
 }
+
 ```
 
 ### Download
@@ -140,59 +161,54 @@ $ terraform apply
 
 ## Development
 
-### Go
+## Go
 
-In order to work on the provider, [Go](http://www.golang.org) should be installed first (version 1.8+ is *required*).
+In order to work on the provider, [Go](http://www.golang.org) should be installed first (version 1.11+ is *required*).
 [goenv](https://github.com/syndbg/goenv) and [gvm](https://github.com/moovweb/gvm) are great utilities that can help a
 lot with that and simplify setup tremendously. 
-[GOPATH](http://golang.org/doc/code.html#GOPATH) should be setup correctly and as long as `$GOPATH/bin` should be
+[GOPATH](http://golang.org/doc/code.html#GOPATH) should be setup correctly and `$GOPATH/bin` should be
 added `$PATH`.
 
-### Source Code
+This plugin uses Go modules available starting from Go `1.11` and therefore it **should not** be checked out within `$GOPATH` tree.
 
-Source code can be retrieved either with `go get`
+## Source Code
 
+Source code can be retrieved with `git`
 ```bash
-$ go get -u -d github.com/ashald/terraform-provider-transform
-```
-
-or with `git`
-```bash
-$ mkdir -p ${GOPATH}/src/github.com/ashald/terraform-provider-transform
-$ cd ${GOPATH}/src/github.com/ashald/terraform-provider-transform
 $ git clone git@github.com:ashald/terraform-provider-transform.git .
 ```
 
-### Dependencies
+## Dependencies
 
-This project uses `govendor` to manage its dependencies. When adding a dependency on a new package it should be fetched
-with:
+This project uses `go mod` to manage its dependencies and it's expected that all dependencies are vendored so that
+it's buildable without internet access. When adding/removing a dependency run following commands:
 ```bash
-$ govendor fetch +o
+$ go mod venndor
+$ go mod tidy
 ```
 
 ### Test
 
 ```bash
 $ make test
-  go test -v ./...
+  GOPROXY="off" GOFLAGS="-mod=vendor" go test -v ./...
   ?   	github.com/ashald/terraform-provider-transform	[no test files]
   === RUN   TestGlobMapDataSource
-  --- PASS: TestGlobMapDataSource (0.09s)
+  --- PASS: TestGlobMapDataSource (0.04s)
   === RUN   TestGroupByValueDataSource
-  --- PASS: TestGroupByValueDataSource (0.09s)
+  --- PASS: TestGroupByValueDataSource (0.02s)
   === RUN   TestProvider
   --- PASS: TestProvider (0.00s)
   PASS
-  ok  	github.com/ashald/terraform-provider-transform/transform	(cached)
-  go vet ./...
+  ok  	github.com/ashald/terraform-provider-transform/transform	0.075s
+  GOPROXY="off" GOFLAGS="-mod=vendor" go vet ./...
 ```
 
 ### Build
 In order to build plugin for the current platform use [GNU]make:
 ```bash
 $ make build
-  go build -o terraform-provider-transform_v1.1.0
+  GOPROXY="off" GOFLAGS="-mod=vendor" go build -o terraform-provider-transform_v1.1.0
 
 ```
 
@@ -206,8 +222,8 @@ executed against a configuration in the same directory.
 In order to prepare provider binaries for all platforms:
 ```bash
 $ make release
-  GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-darwin-amd64'
-  GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-linux-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=darwin GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-darwin-amd64'
+  GOPROXY="off" GOFLAGS="-mod=vendor" GOOS=linux GOARCH=amd64 go build -o './release/terraform-provider-transform_v1.1.0-linux-amd64'
 ```
 
 ### Versioning
